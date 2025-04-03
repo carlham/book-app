@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book List</title>
+    <style>
+      body { font-family: sans-serif; margin: 20px; }
+      .book-list { list-style-type: none; padding: 0; }
+      .book-item { padding: 10px; border-bottom: 1px solid #ccc; }
+      .pagination { margin-top: 20px; }
+      .pagination button { padding: 5px 10px; margin: 0 5px; }
+    </style>
+</head>
+<body>
+    <h1>Book List</h1>
+    <ul id="bookList" class="book-list"></ul>
+    <div class="pagination">
+        <button id="prevPage">Previous</button>
+        <span id="pageInfo"></span>
+        <button id="nextPage">Next</button>
+    </div>
+    <script>
+      let currentPage = 1;
+      const limit = 10;
+
+      async function fetchBooks(page = 1) {
+        const res = await fetch(`/api/books?page=${page}&limit=${limit}`);
+        const data = await res.json();
+        
+        const list = document.getElementById('bookList');
+        list.innerHTML = '';
+        
+        data.books.forEach(book => {
+          const li = document.createElement('li');
+          li.className = 'book-item';
+          li.textContent = `${book.title} - ${book.author || 'Unknown'}`;
+          list.appendChild(li);
+        });
+        
+        document.getElementById('pageInfo').textContent = `Page ${data.page} of ${data.pages}`;
+        currentPage = data.page;
+      }
+      
+      document.getElementById('prevPage').addEventListener('click', () => {
+        if (currentPage > 1) {
+          fetchBooks(currentPage - 1);
+        }
+      });
+      
+      document.getElementById('nextPage').addEventListener('click', () => {
+        fetchBooks(currentPage + 1);
+      });
+      
+      // Initial fetch on page load
+      fetchBooks();
+    </script>
+</body>
+</html>

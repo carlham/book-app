@@ -6,7 +6,6 @@ import {
   LoadingIndicator
 } from './components'
 import './App.css'
-import DeleteBook from './components/book-card/DeleteBook'
 
 function App() {
   const [data, setData] = useState(null)
