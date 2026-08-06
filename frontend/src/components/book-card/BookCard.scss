@@ -1,0 +1,49 @@
+.book-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border: 2px solid black;
+    border-radius: 40px;
+    box-shadow: 4px 2px 20px black;
+    padding: 0 1rem 1rem 1rem;
+    min-width: 200px;
+    min-height: 400px;
+    height: auto;
+    overflow: hidden;
+
+    &__title {
+        font-size: 2rem;
+        line-height: 2.4rem;
+        text-align: left;
+        margin: .8rem 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow-wrap: anywhere;
+        overflow: hidden;
+
+    }
+
+    &__genre {
+        display: inline-block;
+    }
+
+    &__author {
+        font-style: italic;
+        display: inline-block;
+    }
+
+    &__description {
+        text-align: left;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+        margin-top: 2rem;
+    }
+
+    .delete-book {
+        margin-top: auto;
+    }
+}
