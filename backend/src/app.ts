@@ -1,24 +1,23 @@
-import express, { type Request, type Response } from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import Book from "./models/bookModel.js";
+import "dotenv/config"
+import cookieParser from "cookie-parser"
+import express, { type Request, type Response } from "express"
+import database from "./database/database"
+import cors from "cors"
+import Book from "./models/bookModel.js"
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+//db conn
+const connectionSuccess = await database.connect()
+if (!connectionSuccess) process.exit(1)
+
 app.use(express.json());
+app.use(cookieParser())
 app.use(cors());
 
 // app.use(express.static('public'))
 
-mongoose
-  .connect("mongodb://localhost:27017/test")
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((error: Error) => {
-    console.error("Error connecting to MongoDB:", error.message);
-  });
 
 app.get("/api/books", async (req: Request, res: Response) => {
   // Get page and limit from query parameters, defaulting to page 1 and 10 items per page
