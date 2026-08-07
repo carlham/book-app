@@ -1,7 +1,7 @@
 import express, { type Request, type Response } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import Book from "./models/Book.js";
+import Book from "./models/bookModel.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
