@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 import AppError from "../utils/errorUtils.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {
@@ -8,6 +8,7 @@ import {
   getBookByIdService,
   updateBookService,
 } from "../service/bookService.js";
+import type { BookCreateInput, BookUpdateInput } from "../models/bookModel.js";
 
 export const getBooks = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { page, limit } = req.query;
@@ -19,7 +20,12 @@ export const getBooks = asyncHandler(async (req: Request, res: Response): Promis
 });
 
 export const getBookById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const id = req.params.id as string;
+  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+  if (!id) {
+    throw new AppError("Invalid book id", 400);
+  }
+
   const book = await getBookByIdService(id);
 
   if (!book) {
@@ -30,13 +36,20 @@ export const getBookById = asyncHandler(async (req: Request, res: Response): Pro
 });
 
 export const createBook = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const savedBook = await createBookService(req.body as Record<string, unknown>);
+  const payload = req.body as BookCreateInput;
+  const savedBook = await createBookService(payload);
   res.status(201).json(savedBook);
 });
 
 export const updateBook = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const id = req.params.id as string;
-  const updatedBook = await updateBookService(id, req.body as Record<string, unknown>);
+  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+  if (!id) {
+    throw new AppError("Invalid book id", 400);
+  }
+
+  const payload = req.body as BookUpdateInput;
+  const updatedBook = await updateBookService(id, payload);
 
   if (!updatedBook) {
     throw new AppError("Book not found", 404);
@@ -46,7 +59,12 @@ export const updateBook = asyncHandler(async (req: Request, res: Response): Prom
 });
 
 export const deleteBook = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const id = req.params.id as string;
+  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+  if (!id) {
+    throw new AppError("Invalid book id", 400);
+  }
+
   const deletedBook = await deleteBookService(id);
 
   if (!deletedBook) {

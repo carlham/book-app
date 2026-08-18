@@ -18,6 +18,18 @@ const bookSchema = new mongoose.Schema({
 
 export type BookDocument = InferSchemaType<typeof bookSchema>;
 
+export type BookCreateInput = {
+  title: string;
+  author?: string | null;
+  genre?: string | null;
+  published_year?: Date | null;
+  isbn?: string | null;
+  description?: string | null;
+  availability?: boolean;
+};
+
+export type BookUpdateInput = Partial<BookCreateInput>;
+
 const Book = mongoose.model("Book", bookSchema);
 
 export default Book;

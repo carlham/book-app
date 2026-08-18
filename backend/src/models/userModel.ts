@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
   age: Number,
   gender: {
     type: String,
-    enum: ["male", "female", "non_binary", "other", "unspecified"]
+    enum: ["male", "female", "non_binary", "other", "unspecified"],
   },
   role: {
     type: String,
@@ -28,6 +28,17 @@ const userSchema = new mongoose.Schema({
 });
 
 export type UserDocument = InferSchemaType<typeof userSchema>;
+
+export type UserCreateInput = {
+  name: string;
+  email: string;
+  passwordHash: string;
+  age?: number | null;
+  gender?: "male" | "female" | "non_binary" | "other" | "unspecified" | null;
+  role?: "admin" | "user";
+};
+
+export type UserUpdateInput = Partial<UserCreateInput>;
 
 const User = mongoose.model("User", userSchema);
 

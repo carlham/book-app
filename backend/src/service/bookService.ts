@@ -1,6 +1,9 @@
-import Book from "../models/bookModel.js";
+import Book, { type BookCreateInput, type BookDocument, type BookUpdateInput } from "../models/bookModel.js";
 
-export const getAllBooks = async (page: number, limit: number) => {
+export const getAllBooks = async (
+  page: number,
+  limit: number,
+): Promise<{ total: number; page: number; pages: number; books: BookDocument[] }> => {
   const skip = (page - 1) * limit;
   const [books, total] = await Promise.all([
     Book.find().skip(skip).limit(limit),
@@ -15,22 +18,25 @@ export const getAllBooks = async (page: number, limit: number) => {
   };
 };
 
-export const getBookByIdService = async (id: string) => {
+export const getBookByIdService = async (id: string): Promise<BookDocument | null> => {
   return Book.findById(id);
 };
 
-export const createBookService = async (payload: Record<string, unknown>) => {
-  const newBook = new Book(payload as any);
+export const createBookService = async (payload: BookCreateInput): Promise<BookDocument> => {
+  const newBook = new Book(payload);
   return newBook.save();
 };
 
-export const updateBookService = async (id: string, payload: Record<string, unknown>) => {
-  return Book.findByIdAndUpdate(id, payload as any, {
+export const updateBookService = async (
+  id: string,
+  payload: BookUpdateInput,
+): Promise<BookDocument | null> => {
+  return Book.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
   });
 };
 
-export const deleteBookService = async (id: string) => {
+export const deleteBookService = async (id: string): Promise<BookDocument | null> => {
   return Book.findByIdAndDelete(id);
 };
