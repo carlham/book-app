@@ -8,7 +8,7 @@ const sessionSchema = new mongoose.Schema({
     refreshTokenID: {
         type: String,
         required: true,
-        uniqure: true
+        unique: true
     },
     issuedAt: {
         type: Date,

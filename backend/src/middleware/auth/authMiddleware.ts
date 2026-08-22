@@ -1,5 +1,5 @@
 import jwt, { JwtPayload } from "jsonwebtoken"
-import Session from "../../models/sessionModel"
+import Session from "../../models/sessionModel.js"
 import { Request, Response, NextFunction } from "express";
 
 const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || "something_not_so_secret"
@@ -7,6 +7,7 @@ const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || "something_not_so_sec
 type AuthPayload = JwtPayload & {
     userID: string
     refreshTokenID: string
+    role: "admin" | "user"
 }
 
 export default async (req: Request, res: Response, next: NextFunction) => {
@@ -18,14 +19,22 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         }
 
         const accessToken = authHeader.split(" ")[1]
+        if (!accessToken) {
+            return res.status(401).json({ error: "Unauthorized - No token provided" })
+        }
+
         const decoded = jwt.verify(accessToken, JWT_ACCESS_SECRET) as AuthPayload
 
-        const session = await Session.findOne({ 
-            _id: decoded.refreshTokenID, 
-            userID: decoded.userID 
+        const session = await Session.findOne({
+            _id: decoded.refreshTokenID,
+            userID: decoded.userID
         })
 
         if (!session) return res.status(401).json({ error: "Unauthorized - Invalid token" })
+
+        req.userId = decoded.userID
+        req.userRole = decoded.role
+        req.sessionId = decoded.refreshTokenID
 
         next()
     } catch (error) {

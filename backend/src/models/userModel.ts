@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
   passwordHash: {
     type: String,
     required: true,
+    select: false,
   },
   age: Number,
   gender: {
@@ -24,6 +25,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["admin", "user"],
     default: "user",
+  },
+  banned: {
+    type: Boolean,
+    default: false,
+  },
+  bannedAt: {
+    type: Date,
+    default: null,
+  },
+  banReason: {
+    type: String,
+    default: null,
   },
 });
 
@@ -39,6 +52,22 @@ export type UserCreateInput = {
 };
 
 export type UserUpdateInput = Partial<UserCreateInput>;
+
+export type UserCreateRequest = {
+  name: string;
+  email: string;
+  password: string;
+  age?: number | null;
+  gender?: "male" | "female" | "non_binary" | "other" | "unspecified" | null;
+  role?: "admin" | "user";
+};
+
+export type ProfileUpdateInput = {
+  name?: string;
+  email?: string;
+  age?: number | null;
+  gender?: "male" | "female" | "non_binary" | "other" | "unspecified" | null;
+};
 
 const User = mongoose.model("User", userSchema);
 

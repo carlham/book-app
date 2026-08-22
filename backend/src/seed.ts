@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import Book from "./models/Book.js";
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/test";
+import "dotenv/config";
+import database from "./database/database.js";
+import Book from "./models/bookModel.js";
 const books = [
     // Classic Literature
     { title: "Pride and Prejudice", author: "Jane Austen", genre: "Classic", published_year: 1813, isbn: "9780141439518", description: "A witty exploration of manners, marriage, and morality in Regency England, following Elizabeth Bennet and the proud Mr. Darcy.", availability: true },
@@ -98,8 +98,10 @@ const books = [
     { title: "Matilda", author: "Roald Dahl", genre: "Children's", published_year: 1988, isbn: "9780142410370", description: "A brilliant, telekinetic girl outwits her neglectful family and a tyrannical headmistress.", availability: true },
 ];
 async function seed() {
-    await mongoose.connect(MONGO_URI);
-    console.log("Connected to MongoDB at", MONGO_URI);
+    const connected = await database.connect();
+    if (!connected) {
+        process.exit(1);
+    }
     const ops = books.map((book) => ({
         updateOne: {
             filter: { isbn: book.isbn },
@@ -109,7 +111,7 @@ async function seed() {
     }));
     const result = await Book.bulkWrite(ops);
     console.log(`Inserted ${result.upsertedCount} new books (${books.length} total in seed list).`);
-    await mongoose.disconnect();
+    await database.disconnect();
 }
 seed().catch((err) => {
     console.error("Seeding failed:", err);

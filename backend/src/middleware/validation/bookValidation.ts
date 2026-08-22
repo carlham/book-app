@@ -1,58 +1,70 @@
 import { body } from "express-validator"
 
-const title = [
+const titleRule = () =>
     body("title")
         .trim()
+        .isString().withMessage("Title must be a string")
+        .isLength({ min: 1, max: 200 }).withMessage("Title must be between 1 and 200 characters")
         .escape()
-        .isString().withMessage("Book tile must be a string")
-        .isLength({ min: 1, max: 100 }).withMessage("The length of the book title must be between 1 and 100 characters")
-]
 
-const author = [
+const authorRule = () =>
     body("author")
+        .optional({ values: "falsy" })
         .trim()
-        .escape()
         .isString().withMessage("Author must be a string")
-]
+        .isLength({ max: 200 }).withMessage("Author must be at most 200 characters")
+        .escape()
 
-const genre = [
+const genreRule = () =>
     body("genre")
+        .optional({ values: "falsy" })
         .trim()
-        .escape()
         .isString().withMessage("Genre must be a string")
-]
+        .isLength({ max: 100 }).withMessage("Genre must be at most 100 characters")
+        .escape()
 
-const published_year = [
+const publishedYearRule = () =>
     body("published_year")
-        .isDate().withMessage("Published year must be a valid date")
-]
+        .optional({ values: "falsy" })
+        .isInt({ min: -3000, max: new Date().getFullYear() }).withMessage("Published year must be a valid year")
+        .toInt()
 
-const isbn = [
+const isbnRule = () =>
     body("isbn")
+        .optional({ values: "falsy" })
         .trim()
-        .escape()
         .isISBN().withMessage("Must be a valid ISBN")
-]
 
-const description = [
+const descriptionRule = () =>
     body("description")
+        .optional({ values: "falsy" })
         .trim()
-        .escape()
         .isString().withMessage("Description must be a valid string")
-        .isLength({ min: 1, max: 750 }).withMessage("The length of the description must be between 1 and 750 characters")
-]
+        .isLength({ max: 750 }).withMessage("The length of the description must be at most 750 characters")
+        .escape()
 
-const availability = [
+const availabilityRule = () =>
     body("availability")
+        .optional()
         .isBoolean().withMessage("Availability has to be true or false")
+        .toBoolean()
+
+export const createBookRules = [
+    titleRule(),
+    authorRule(),
+    genreRule(),
+    publishedYearRule(),
+    isbnRule(),
+    descriptionRule(),
+    availabilityRule(),
 ]
 
-export default {
-    title,
-    author,
-    genre,
-    published_year,
-    isbn,
-    description,
-    availability
-}
+export const updateBookRules = [
+    titleRule().optional({ values: "falsy" }),
+    authorRule(),
+    genreRule(),
+    publishedYearRule(),
+    isbnRule(),
+    descriptionRule(),
+    availabilityRule(),
+]

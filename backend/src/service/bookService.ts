@@ -1,4 +1,6 @@
 import Book, { type BookCreateInput, type BookDocument, type BookUpdateInput } from "../models/bookModel.js";
+import Rental from "../models/rentalModel.js";
+import AppError from "../utils/errorUtils.js";
 
 export const getAllBooks = async (
   page: number,
@@ -38,5 +40,9 @@ export const updateBookService = async (
 };
 
 export const deleteBookService = async (id: string): Promise<BookDocument | null> => {
+  const activeRental = await Rental.findOne({ bookID: id, returnedAt: null });
+  if (activeRental) {
+    throw new AppError("Cannot delete a book that is currently rented out", 409);
+  }
   return Book.findByIdAndDelete(id);
 };

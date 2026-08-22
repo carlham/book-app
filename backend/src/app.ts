@@ -5,6 +5,7 @@ import express from "express";
 import database from "./database/database.js";
 import errorHandler from "./middleware/errorhandler/errorHandler.js";
 import notFound from "./middleware/errorhandler/notFound.js";
+import { rateLimiter } from "./middleware/ratelimiter/ratelimiter.js";
 import apiRoutes from "./routes/index.js";
 
 const app = express();
@@ -17,9 +18,14 @@ if (!connectionSuccess) {
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+    credentials: true,
+  }),
+);
 
-app.use("/api", apiRoutes);
+app.use("/api", rateLimiter, apiRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

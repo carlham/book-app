@@ -7,7 +7,7 @@ const bookSchema = new mongoose.Schema({
   },
   author: String,
   genre: String,
-  published_year: Date,
+  published_year: Number,
   isbn: String,
   description: String,
   availability: {
@@ -22,7 +22,7 @@ export type BookCreateInput = {
   title: string;
   author?: string | null;
   genre?: string | null;
-  published_year?: Date | null;
+  published_year?: number | null;
   isbn?: string | null;
   description?: string | null;
   availability?: boolean;

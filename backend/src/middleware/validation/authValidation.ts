@@ -5,7 +5,7 @@ export const validateSignupRules = [
         .trim()
         .notEmpty().withMessage("Name is required")
         .isLength({ min: 3, max: 100 }).withMessage("Name must be between 3 and 100 characters")
-        .isAlphanumeric().withMessage("Name must only contain letters and numbers")
+        .matches(/^[\p{L}\p{M}\s.'-]+$/u).withMessage("Name can only contain letters, spaces, hyphens, apostrophes, and periods")
         .escape(),
     
     body("email")

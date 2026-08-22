@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import AppError from "../utils/errorUtils.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { getIdParam } from "../utils/requestUtils.js";
 import {
   createBookService,
   deleteBookService,
@@ -20,12 +21,7 @@ export const getBooks = asyncHandler(async (req: Request, res: Response): Promis
 });
 
 export const getBookById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-
-  if (!id) {
-    throw new AppError("Invalid book id", 400);
-  }
-
+  const id = getIdParam(req);
   const book = await getBookByIdService(id);
 
   if (!book) {
@@ -42,12 +38,7 @@ export const createBook = asyncHandler(async (req: Request, res: Response): Prom
 });
 
 export const updateBook = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-
-  if (!id) {
-    throw new AppError("Invalid book id", 400);
-  }
-
+  const id = getIdParam(req);
   const payload = req.body as BookUpdateInput;
   const updatedBook = await updateBookService(id, payload);
 
@@ -59,12 +50,7 @@ export const updateBook = asyncHandler(async (req: Request, res: Response): Prom
 });
 
 export const deleteBook = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-
-  if (!id) {
-    throw new AppError("Invalid book id", 400);
-  }
-
+  const id = getIdParam(req);
   const deletedBook = await deleteBookService(id);
 
   if (!deletedBook) {
