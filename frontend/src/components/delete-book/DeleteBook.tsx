@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { deleteBook } from '../../services/bookService'
 import './DeleteBook.scss'
 
 interface DeleteBookProps {
@@ -16,14 +17,8 @@ function DeleteBook({ bookId, onDeleteSuccess }: DeleteBookProps) {
             setError(null)
 
             try {
-                const response = await fetch(`http://localhost:3000/api/books/${bookId}`, {
-                    method: 'DELETE'
-            })
-            if (!response.ok) {
-                throw new Error('Failed to delete book')
-            }
-
-            onDeleteSuccess(bookId)
+                await deleteBook(bookId)
+                onDeleteSuccess(bookId)
             } catch (error) {
                 setError(error instanceof Error ? error.message : String(error))
                 console.error("Error deleting book:", error)
