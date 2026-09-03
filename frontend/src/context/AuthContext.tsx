@@ -1,13 +1,15 @@
 import { createContext, useContext, useState, useRef, useEffect, PropsWithChildren } from "react";
 
-interface UserType {
-    accessToken: string | null
-    user: {
-        id: string
-        name: string
-        email: string
-        role: "admin" | "user"
-    }
+interface UserProfile {
+    id: string
+    name: string
+    email: string
+    role: "admin" | "user"
+}
+
+interface LoginResponse {
+    accessToken: string
+    user: UserProfile
 }
 
 interface AppErrorType {
@@ -16,13 +18,14 @@ interface AppErrorType {
 }
 
 interface AccessTokenType {
-    accessToken: string | null
+    accessToken: string
 }
 
 interface AuthContextType {
     accessToken: string | null
     loading: boolean
-    login: (email: string, password: string) => Promise<UserType>
+    user: UserProfile | null
+    login: (email: string, password: string) => Promise<LoginResponse>
     logout: () => Promise<void>
 }
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -30,6 +33,7 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export function AuthProvider({ children }: PropsWithChildren) {
     const [accessToken, setAccessToken] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
+    const [user, setUser] = useState<UserProfile | null>(null)
     const refreshTimer = useRef(0)
 
     //restore session on page load using refresh token cookie
@@ -43,10 +47,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
                 if (res.ok) {
                     const data = await res.json() as AccessTokenType
                     setAccessToken(data.accessToken)
+                    await getMe(data.accessToken)
                     scheduleRefresh()
+                } else {
+                    setAccessToken(null)
+                    setUser(null)
                 }
             } catch (err) {
                 setAccessToken(null)
+                setUser(null)
             } finally {
                 setLoading(false)
             }
@@ -71,13 +80,33 @@ export function AuthProvider({ children }: PropsWithChildren) {
                     scheduleRefresh()
                 } else {
                     setAccessToken(null)
+                    setUser(null)
                 }
             } catch (error) {
                 setAccessToken(null)
+                setUser(null)
             }
 
         }, 14 * 60 * 1000) //14 minutes
     }
+
+    const getMe = async (accessToken: string) => {
+        const res = await fetch("/api/me", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`
+            },
+            credentials: "include"
+        })
+
+        if (!res.ok) {
+            const error = await res.json() as AppErrorType
+            throw new Error(error.error || "Request failed")
+        }
+        const data = await res.json() as UserProfile
+        setUser(data)
+    }
+
 
     const login = async (email: string, password: string) => {
         const res = await fetch("/api/auth/signin", {
@@ -90,9 +119,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
             const error = await res.json() as AppErrorType
             throw new Error(error.error || "Login failed")
         }
-        const data = await res.json() as UserType
+        const data = await res.json() as LoginResponse
+        const user = data.user
         setAccessToken(data.accessToken)
         scheduleRefresh()
+        setUser(user)
         return data
     }
 
@@ -105,12 +136,20 @@ export function AuthProvider({ children }: PropsWithChildren) {
             })
         } finally {
             setAccessToken(null)
-
+            setUser(null)
         }
     }
 
+    const authValue = {
+        accessToken,
+        loading,
+        login,
+        logout,
+        user
+    }
+
     return (
-        <AuthContext.Provider value={{ accessToken, loading, login, logout }} >
+        <AuthContext.Provider value={authValue} >
             {children}
         </AuthContext.Provider>
     )
